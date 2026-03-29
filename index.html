@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AKSONENEKO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  img { -webkit-user-drag: none; user-drag: none; pointer-events: none; }
+  .home-grid, .photos-strip, .photos-strip-wrap, .photo-item { -webkit-user-select: none; user-select: none; }
+
+  :root {
+    --bg: #f4f3f0;
+    --bg-white: #ffffff;
+    --bg-dark: #111110;
+    --text: #1a1917;
+    --text-muted: #888580;
+    --text-light: #ffffff;
+    --border: rgba(26,25,23,0.12);
+    --font-display: 'Cormorant Garamond', serif;
+    --font-body: 'Jost', sans-serif;
+    --nav-h: 64px;
+    --footer-h: 73px;
+    --gap: 8px;
+    --info-w: 520px;
+  }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-white);
+    color: var(--text);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 200;
+    height: var(--nav-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    /* exclusion on home, overridden to solid on other pages */
+    mix-blend-mode: exclusion;
+    color: #ffffff;
+    background: transparent;
+  }
+  nav.solid {
+    mix-blend-mode: normal;
+    color: var(--text);
+    background: var(--bg-white);
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: inherit;
+    cursor: pointer;
+    transition: margin-left 0.25s ease;
+  }
+  /* Back button inside nav (visible on inner pages) */
+  .nav-back {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    cursor: pointer;
+    border: none; background: none; padding: 0;
+    transition: color 0.2s;
+    flex-shrink: 0;
+  }
+  .nav-back:hover { color: var(--text); }
+  .nav-back svg { width: 15px; height: 15px; }
+  /* When nav has back button — show it and shift logo */
+  nav.with-back .nav-back { display: inline-flex; }
+  nav.with-back .nav-logo { margin-left: 32px; }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    position: relative;
+    padding-bottom: 2px;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 1px;
+    background: currentColor;
+    transition: width 0.25s ease;
+  }
+  .nav-links a:hover::after,
+  .nav-links a.active::after { width: 100%; }
+
+  /* ── PAGE system ── */
+  .page {
+    display: none;
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+  }
+  .page.active { display: block; }
+
+  /* ── FOOTER ── */
+  .site-footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: var(--footer-h);
+    background: var(--bg-white);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.03em;
+    z-index: 10;
+  }
+  .footer-contact { display: flex; flex-direction: column; gap: 2px; }
+  .footer-social { display: flex; align-items: center; gap: 12px; }
+  .footer-social a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+  .footer-social a:hover { color: var(--text); }
+  .footer-copy { font-size: 11px; letter-spacing: 0.05em; }
+  .social-icon {
+    width: 30px; height: 30px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .social-icon:hover { border-color: var(--text); color: var(--text); }
+  .social-icon svg { width: 13px; height: 13px; }
+
+  /* ══════════════════════════════════════════════
+     HOME
+     fix 1: bg is WHITE, photos sit on white
+     fix 1: photos start at top=0 (full bleed)
+     fix 3: native scrollbar visible for horizontal scroll
+  ══════════════════════════════════════════════ */
+  #page-home {
+    background: var(--bg-white); /* fix 2: white background */
+  }
+
+  .home-grid {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    bottom: var(--footer-h);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--gap);
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    cursor: default;
+    user-select: none;
+    background: var(--bg-white);
+  }
+  .home-grid::-webkit-scrollbar { display: none; }
+
+  .home-photo {
+    flex: 0 0 auto;
+    /* fix 1: start from very top, full height of container */
+    height: 100%;
+    max-height: 828px;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: #ccc;
+  }
+  .home-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    /* no hover animation */
+  }
+
+  /* ══════════════════════════════════════════════
+     GALLERY tiles
+  ══════════════════════════════════════════════ */
+  #page-gallery { background: var(--bg-white); }
+
+  .gallery-grid {
+    position: absolute;
+    top: var(--nav-h);
+    left: 0; right: 0;
+    bottom: var(--footer-h);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--gap);
+    padding: var(--gap);
+    background: var(--bg-white);
+  }
+  .gallery-tile {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .gallery-tile img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+    filter: brightness(0.72);
+  }
+  .gallery-tile:hover img { transform: scale(1.04); filter: brightness(0.6); }
+  .gallery-tile-label {
+    position: absolute;
+    bottom: 24px; left: 20px; right: 20px;
+    color: var(--text-light);
+    font-family: var(--font-display);
+    font-size: clamp(16px, 1.8vw, 26px);
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    line-height: 1.3;
+    pointer-events: none;
+  }
+
+  /* ══════════════════════════════════════════════
+     PHOTO VIEW (inside catalog)
+     fix 4: split layout — photos strip LEFT, info panel RIGHT
+     Photos from top, same home-page style
+     Info block centered at 520px (photo 3 & 4 reference)
+  ══════════════════════════════════════════════ */
+  #page-photos {
+    background: var(--bg-white);
+  }
+
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    cursor: pointer;
+    border: none; background: none; padding: 0;
+    font-family: var(--font-body);
+    transition: color 0.2s;
+    z-index: 6;
+  }
+  .back-btn:hover { color: var(--text); }
+  .back-btn svg { width: 15px; height: 15px; }
+
+  /*
+   * photos-main = single horizontal flex row, NO overflow on itself.
+   * All items (photos + info panel) sit in one flat row.
+   * The drag-scroll is applied directly to this element.
+   */
+  .photos-main {
+    position: absolute;
+    top: var(--nav-h);
+    left: 0; right: 0;
+    bottom: var(--footer-h);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--gap);
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    cursor: default;
+    background: var(--bg-white);
+  }
+  .photos-main::-webkit-scrollbar { display: none; }
+
+  /* Wrapper div is no longer needed but kept for markup compat — zero size */
+  .photos-strip-wrap { display: contents; }
+
+  /* Each photo card sits directly in photos-main */
+  .photo-item {
+    flex: 0 0 auto;
+    height: 100%;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    cursor: zoom-in;
+    pointer-events: all; /* allow click to open lightbox */
+  }
+  .photo-item img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+
+  /* Info panel: full viewport width, content centered at 520px */
+  .photos-info {
+    flex: 0 0 100vw;
+    width: 100vw;
+    height: 100%;
+    background: var(--bg-white);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 48px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .photos-info-inner {
+    width: var(--info-w);
+    max-width: 100%;
+  }
+
+  /* Category title */
+  .info-title {
+    font-family: var(--font-display);
+    font-size: clamp(18px, 2vw, 26px);
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 28px;
+    line-height: 1.2;
+  }
+
+  /* Bio text */
+  .info-bio p {
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+  .info-bio p:first-child { color: var(--text); }
+
+  /* Contact block */
+  .info-contact {
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 2;
+  }
+  .info-contact strong { color: var(--text); font-weight: 400; }
+
+  /* Social icons */
+  .info-social {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  /* Back link inside info — photo 4 shows it below social icons */
+  .info-back {
+    margin-top: 28px;
+  }
+  .back-btn-light {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    cursor: pointer;
+    border: none; background: none; padding: 0;
+    font-family: var(--font-body);
+    transition: color 0.2s;
+  }
+  .back-btn-light:hover { color: var(--text); }
+  .back-btn-light svg { width: 14px; height: 14px; }
+
+  /* ══════════════════════════════════════════════
+     CONTACT (standalone page) — same info layout
+  ══════════════════════════════════════════════ */
+  #page-contact { background: var(--bg-white); }
+
+  .contact-inner {
+    position: absolute;
+    top: var(--nav-h); left: 0; right: 0;
+    bottom: var(--footer-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .contact-card {
+    width: var(--info-w);
+    padding: 0 8px;
+  }
+  .contact-back { margin-bottom: 28px; }
+
+  .contact-body p {
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+  .contact-body p:first-child { color: var(--text); }
+  .contact-info {
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 2;
+  }
+  .contact-info strong { color: var(--text); font-weight: 400; }
+  .contact-social { display: flex; gap: 10px; margin-top: 16px; }
+
+  /* ══════════════════════════════════════════════
+     MOBILE ≤ 700px
+  ══════════════════════════════════════════════ */
+  @media (max-width: 700px) {
+    :root { --nav-h: 56px; --footer-h: 80px; --info-w: 100%; }
+    nav { padding: 0 20px; }
+    .nav-logo { font-size: 16px; }
+
+    .home-photo { height: 100%; aspect-ratio: 3 / 4; }
+
+    .gallery-grid {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: 1fr 1fr;
+    }
+    .gallery-tile:nth-child(3) { grid-column: 1 / -1; }
+    .gallery-tile-label { font-size: 13px; bottom: 14px; left: 12px; }
+
+    /* Photo view on mobile: stack vertically */
+    .photos-main { flex-direction: column; }
+    .photos-strip-wrap {
+      flex: 0 0 50%;
+      width: 100%;
+    }
+    .photos-strip {
+      overflow-x: scroll;
+      overflow-y: hidden;
+    }
+    .photo-item { height: 100%; width: auto; aspect-ratio: 3 / 4; }
+    .photos-info {
+      flex: 0 0 100vw;
+      width: 100vw;
+      padding: 24px 20px;
+      overflow-y: auto;
+    }
+    .photos-info-inner { width: 100%; }
+
+    .contact-inner { align-items: flex-start; padding: 24px 20px; overflow-y: auto; }
+    .contact-card { width: 100%; }
+
+    .site-footer {
+      padding: 12px 20px;
+      flex-wrap: wrap;
+      height: auto;
+      min-height: var(--footer-h);
+    }
+    .footer-copy { width: 100%; text-align: center; }
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .fade-in { animation: fadeIn 0.25s ease forwards; }
+
+  /* ── LIGHTBOX ─────────────────────────────────────── */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,0.96);
+    align-items: center;
+    justify-content: center;
+  }
+  .lightbox.open { display: flex; }
+
+  .lightbox-img {
+    max-width: calc(100vw - 160px);
+    max-height: calc(100vh - 80px);
+    object-fit: contain;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .lightbox-img.loaded { opacity: 1; }
+
+  .lb-close {
+    position: fixed;
+    top: 24px; right: 28px;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: rgba(255,255,255,0.6);
+    transition: color 0.2s;
+    background: none; border: none;
+    z-index: 1001;
+  }
+  .lb-close:hover { color: #fff; }
+  .lb-close svg { width: 22px; height: 22px; }
+
+  .lb-arrow {
+    position: fixed;
+    top: 50%; transform: translateY(-50%);
+    width: 52px; height: 52px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: rgba(255,255,255,0.5);
+    transition: color 0.2s;
+    background: none; border: none;
+    z-index: 1001;
+  }
+  .lb-arrow:hover { color: #fff; }
+  .lb-arrow svg { width: 28px; height: 28px; }
+  .lb-prev { left: 16px; }
+  .lb-next { right: 16px; }
+  .lb-arrow.hidden { opacity: 0; pointer-events: none; }
+
+  .lb-counter {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.4);
+  }
+
+  @media (max-width: 700px) {
+    .lightbox-img { max-width: 100vw; max-height: 80vh; }
+    .lb-prev { left: 4px; }
+    .lb-next { right: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <button class="nav-back" id="nav-back" onclick="showPage('gallery')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Back
+  </button>
+  <span class="nav-logo" onclick="showPage('home')">AKSONENEKO</span>
+  <div class="nav-links">
+    <a id="nav-gallery" onclick="showPage('gallery')">Gallery</a>
+    <a id="nav-contact" onclick="showPage('contact')">Contact</a>
+  </div>
+</nav>
+
+<!-- ══ HOME ══════════════════════════════════════════ -->
+<div id="page-home" class="page active">
+  <div class="home-grid" id="home-grid">
+    <div class="home-photo"><img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=85" alt="" loading="eager"></div>
+    <div class="home-photo"><img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=85" alt="" loading="eager"></div>
+    <div class="home-photo"><img src="https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=800&q=85" alt="" loading="eager"></div>
+    <div class="home-photo"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=85" alt=""></div>
+    <div class="home-photo"><img src="https://images.unsplash.com/photo-1541216970279-affbfdd55aa8?w=800&q=85" alt=""></div>
+    <div class="home-photo"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=85" alt=""></div>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-contact"><span>+380932653781</span><span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="516161692b343f283011163c30383d7f323e3c">[email&#160;protected]</a></span></div>
+    <div class="footer-social">
+      <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
+      <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
+      <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></a>
+    </div>
+    <span class="footer-copy">© AKSONENEKO 2024. ALL RIGHTS RESERVED.</span>
+  </footer>
+</div>
+
+<!-- ══ GALLERY ════════════════════════════════════════ -->
+<div id="page-gallery" class="page">
+  <div class="gallery-grid">
+    <div class="gallery-tile" onclick="showPhotos('face', 'The Face Exhibit')">
+      <img src="DSC_0266.jpg" alt="">
+      <div class="gallery-tile-label">The Face Exhibit</div>
+    </div>
+    <div class="gallery-tile" onclick="showPhotos('ethno', 'A Selection of Ethno Culture Photos')">
+      <img src="DSC_0350.jpg" alt="">
+      <div class="gallery-tile-label">A Selection of Ethno Culture Photos</div>
+    </div>
+    <div class="gallery-tile" onclick="showPhotos('portraits', 'Portraits')">
+      <img src="DSC_0027.jpg" alt="">
+      <div class="gallery-tile-label">Portraits</div>
+    </div>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-contact"><span>+380932653781</span><span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3f0f0f07455a51465e7f78525e5653115c5052">[email&#160;protected]</a></span></div>
+    <div class="footer-social">
+      <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
+      <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
+      <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></a>
+    </div>
+    <span class="footer-copy">© AKSONENEKO 2024. ALL RIGHTS RESERVED.</span>
+  </footer>
+</div>
+
+<!-- ══ PHOTO VIEW (inside catalog) ═══════════════════ -->
+<div id="page-photos" class="page">
+  <!-- dark Back bar -->
+  <!-- photos: injected before info panel, all in one flat scroll row -->
+  <div class="photos-main" id="photos-main">
+    <!-- photo-items injected here by JS -->
+    <div class="photos-info">
+      <div class="photos-info-inner">
+        <div class="info-title" id="info-title">The Face Exhibit</div>
+        <div class="info-bio">
+          <p>My name is Laura Jalbert, I am a freelance photographer based in London.</p>
+          <p>Originally specialised in food photography, I am available to style and capture images that genuinely represent you and your brand: restaurant, deli, bar, café, vineyards, distillery, food company, etc.</p>
+        </div>
+        <div class="info-contact">
+          <div><strong>Contact:</strong>&nbsp; +380932653781</div>
+          <div><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ccfcfcf4b6a9a2b5ad8c8ba1ada5a0e2afa3a1">[email&#160;protected]</a></div>
+        </div>
+        <div class="info-social">
+          <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
+          <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
+          <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></a>
+        </div>
+        <div class="info-back">
+          <button class="back-btn-light" onclick="showPage('gallery')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-contact"><span>+380932653781</span><span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1e2e2e26647b70677f5e59737f7772307d7173">[email&#160;protected]</a></span></div>
+    <div class="footer-social">
+      <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
+      <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
+      <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></a>
+    </div>
+    <span class="footer-copy">© AKSONENEKO 2024. ALL RIGHTS RESERVED.</span>
+  </footer>
+</div>
+
+<!-- ══ CONTACT ════════════════════════════════════════ -->
+<div id="page-contact" class="page">
+  <div class="contact-inner">
+    <div class="contact-card">
+      <div class="contact-back">
+        <button class="back-btn-light" onclick="showPage('gallery')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+      </div>
+      <div class="contact-body">
+        <p>My name is Laura Jalbert, I am a freelance photographer based in London.</p>
+        <p>Originally specialised in food photography, I am available to style and capture images that genuinely represent you and your brand: restaurant, deli, bar, café, vineyards, distillery, food company, etc.</p>
+        <div class="contact-info">
+          <div><strong>Contact:</strong>&nbsp; +380932653781</div>
+          <div><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0d3d3d35776863746c4d4a606c6461236e6260">[email&#160;protected]</a></div>
+        </div>
+        <div class="contact-social">
+          <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
+          <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
+          <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-contact"><span>+380932653781</span><span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2414141c5e414a5d45646349454d480a474b49">[email&#160;protected]</a></span></div>
+    <div class="footer-social">
+      <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
+      <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
+      <a href="#" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></a>
+    </div>
+    <span class="footer-copy">© AKSONENEKO 2024. ALL RIGHTS RESERVED.</span>
+  </footer>
+</div>
+
+
+<!-- ── LIGHTBOX ─────────────────────────────────────── -->
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lb-close" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  </button>
+  <button class="lb-arrow lb-prev" id="lb-prev" aria-label="Previous">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </button>
+  <img class="lightbox-img" id="lb-img" src="" alt="">
+  <button class="lb-arrow lb-next" id="lb-next" aria-label="Next">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 6 15 12 9 18"/>
+    </svg>
+  </button>
+  <div class="lb-counter" id="lb-counter"></div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  const photoSets = {
+    face: [
+      'DSC_0121.jpg',
+      'DSC_0600.jpg',
+      'DSC_0685.jpg',
+      'DSC_0956.jpg',
+      'DSC_0394.jpg',
+      'DSC_0266.jpg',
+      'DSC_0273.jpg',
+      'DSC_0603.jpg',
+      'DSC_0809.jpg',
+    ],
+    ethno: [
+      'DSC_0300.jpg',
+      'DSC_0328.jpg',
+      'DSC_0350.jpg',
+      'DSC_0359.jpg',
+      'DSC_0367.jpg',
+      'DSC_0412.jpg',
+      'DSC_0476.jpg',
+    ],
+    portraits: [
+      'DSC_0027.jpg',
+      'DSC_0578.jpg',
+      'DSC_0585.jpg',
+      'DSC_0363.jpg',
+      'DSC_0502.jpg',
+      'DSC_0531.jpg',
+      'DSC_0795.jpg',
+      'DSC_0928.jpg',
+      'DSC_0940.jpg',
+      'DSC_0021.jpg',
+      'DSC_0721k.jpg',
+      'DSC_0235.jpg',
+      'DSC_0402.jpg',
+      'DSC_0534.jpg',
+      'DSC_0721.jpg',
+    ],
+  };
+
+  // ── Page routing ──────────────────────────────────────
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const page = document.getElementById('page-' + id);
+    page.classList.add('active', 'fade-in');
+    setTimeout(() => page.classList.remove('fade-in'), 300);
+    const nav = document.getElementById('main-nav');
+    if (id === 'home') {
+      nav.className = '';
+    } else if (id === 'photos') {
+      nav.className = 'solid with-back';
+    } else {
+      nav.className = 'solid';
+    }
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    if (id === 'gallery' || id === 'photos') document.getElementById('nav-gallery').classList.add('active');
+    if (id === 'contact') document.getElementById('nav-contact').classList.add('active');
+  }
+
+  // ── Drag-to-scroll ────────────────────────────────────
+  // Attaches ONCE per element. Stores cleanup flag on element itself.
+  function addDragScroll(el) {
+    if (el._dragAttached) return; // prevent duplicate listeners
+    el._dragAttached = true;
+
+    let startX = 0, startScroll = 0, dragging = false, moved = false;
+
+    el.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;
+      startX = e.clientX;
+      startScroll = el.scrollLeft;
+      dragging = true;
+      moved = false;
+    });
+
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      if (!moved && Math.abs(dx) < 4) return;
+      moved = true;
+      el.style.cursor = 'grabbing';
+      el.scrollLeft = startScroll - dx;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      el.style.cursor = '';
+    });
+
+    // Touch
+    let tx = 0, ts = 0;
+    el.addEventListener('touchstart', e => {
+      tx = e.touches[0].clientX;
+      ts = el.scrollLeft;
+    }, { passive: true });
+
+    el.addEventListener('touchmove', e => {
+      el.scrollLeft = ts + (tx - e.touches[0].clientX);
+    }, { passive: true });
+  }
+
+  // ── Show photos inside catalog ────────────────────────
+  let lbPhotos = [];
+  let lbIndex = 0;
+
+  function showPhotos(set, title) {
+    document.getElementById('info-title').textContent = title || '';
+
+    const main = document.getElementById('photos-main');
+    // Remove previous photo-items, keep .photos-info last
+    main.querySelectorAll('.photo-item').forEach(el => el.remove());
+    // Reset scroll
+    main.scrollLeft = 0;
+    // Allow re-attach after reset
+    main._dragAttached = false;
+
+    lbPhotos = photoSets[set] || [];
+
+    const info = main.querySelector('.photos-info');
+    lbPhotos.forEach((src, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'photo-item';
+      const img = document.createElement('img');
+      img.src = src; img.alt = ''; img.loading = 'lazy';
+      wrap.appendChild(img);
+      main.insertBefore(wrap, info);
+
+      // Click = open lightbox (only if not a drag)
+      let clickStartX = 0;
+      wrap.addEventListener('mousedown', e => { clickStartX = e.clientX; });
+      wrap.addEventListener('mouseup', e => {
+        if (Math.abs(e.clientX - clickStartX) < 5) lbOpen(i);
+      });
+      // Touch tap
+      let tapX = 0;
+      wrap.addEventListener('touchstart', e => { tapX = e.touches[0].clientX; }, { passive: true });
+      wrap.addEventListener('touchend', e => {
+        if (Math.abs(e.changedTouches[0].clientX - tapX) < 10) lbOpen(i);
+      }, { passive: true });
+    });
+
+    showPage('photos');
+    addDragScroll(main);
+  }
+
+  // ── Init ──────────────────────────────────────────────
+  addDragScroll(document.getElementById('home-grid'));
+
+  // ── Lightbox ──────────────────────────────────────────
+
+  const lightbox  = document.getElementById('lightbox');
+  const lbImg     = document.getElementById('lb-img');
+  const lbCounter = document.getElementById('lb-counter');
+  const lbPrev    = document.getElementById('lb-prev');
+  const lbNext    = document.getElementById('lb-next');
+
+  function lbShow(index) {
+    lbIndex = Math.max(0, Math.min(index, lbPhotos.length - 1));
+    lbImg.classList.remove('loaded');
+    lbImg.src = lbPhotos[lbIndex];
+    lbImg.onload = () => lbImg.classList.add('loaded');
+    lbCounter.textContent = (lbIndex + 1) + ' / ' + lbPhotos.length;
+    lbPrev.classList.toggle('hidden', lbIndex === 0);
+    lbNext.classList.toggle('hidden', lbIndex === lbPhotos.length - 1);
+  }
+
+  function lbOpen(index) {
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    lbShow(index);
+  }
+
+  function lbClose() {
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+    lbImg.src = '';
+  }
+
+  document.getElementById('lb-close').addEventListener('click', lbClose);
+  lbPrev.addEventListener('click', () => lbShow(lbIndex - 1));
+  lbNext.addEventListener('click', () => lbShow(lbIndex + 1));
+
+  // Click on dark area outside image to close
+  lightbox.addEventListener('click', e => {
+    if (e.target === lightbox) lbClose();
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', e => {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'ArrowLeft')  lbShow(lbIndex - 1);
+    if (e.key === 'ArrowRight') lbShow(lbIndex + 1);
+    if (e.key === 'Escape')     lbClose();
+  });
+
+  // Touch swipe inside lightbox
+  let lbTouchX = 0;
+  lightbox.addEventListener('touchstart', e => { lbTouchX = e.touches[0].clientX; }, { passive: true });
+  lightbox.addEventListener('touchend', e => {
+    const dx = lbTouchX - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 40) dx > 0 ? lbShow(lbIndex + 1) : lbShow(lbIndex - 1);
+  }, { passive: true });
+</script>
+</body>
+</html>

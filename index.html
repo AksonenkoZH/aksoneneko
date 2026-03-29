@@ -583,23 +583,19 @@
   <div class="gallery-scroll">
     <div class="gallery-grid" id="gallery-grid">
       <div class="gallery-tile" onclick="showPhotos('face', 'The Face Exhibit')">
-        <img src="DSC_0266.jpg" alt="">
+        <img src="DSC_0121.jpg" alt="">
         <div class="gallery-tile-label">The Face Exhibit</div>
       </div>
       <div class="gallery-tile" onclick="showPhotos('ethno', 'A Selection of Ethno Culture Photos')">
-        <img src="DSC_0350.jpg" alt="">
+        <img src="DSC_0300.jpg" alt="">
         <div class="gallery-tile-label">A Selection of Ethno Culture Photos</div>
       </div>
       <div class="gallery-tile" onclick="showPhotos('portraits', 'Aiturgan')">
-        <img src="AITURGAN_0027.jpg" alt="">
+        <img src="AITURGAN_0066.jpg" alt="">
         <div class="gallery-tile-label">Aiturgan</div>
       </div>
       <div class="gallery-tile" onclick="showPhotos('vlad', 'Vlad')">
-        <img src="VLAD_DSC_0152.jpg" alt="">
-        <div class="gallery-tile-label">Vlad</div>
-      </div>
-      <div class="gallery-tile" onclick="showPhotos('vlad', 'Vlad')">
-        <img src="VLAD_DSC_0152.jpg" alt="">
+        <img src="VLAD_DSC_0233.jpg" alt="">
         <div class="gallery-tile-label">Vlad</div>
       </div>
       <div class="gallery-tile" onclick="showPhotos('clara', 'Clara')">
@@ -760,12 +756,6 @@
       'AITURGAN_0577.jpg',
       'AITURGAN_0585.jpg',
       'AITURGAN_0614.jpg',
-    ],
-    vlad: [
-      'VLAD_DSC_0152.jpg',
-      'VLAD_DSC_0233.jpg',
-      'VLAD_DSC_0234.jpg',
-      'VLAD_DSC_0640.jpg',
     ],
     vlad: [
       'VLAD_DSC_0152.jpg',
@@ -962,17 +952,16 @@
 
   // ── Init ──────────────────────────────────────────────
 
-  // All photos from all catalogs — pool for home page
-  const allPhotos = [
-    ...photoSets.face,
-    ...photoSets.ethno,
-    ...photoSets.portraits,
-    ...photoSets.vlad,
-    ...photoSets.vlad,
-    ...photoSets.clara,
-    ...photoSets.adele,
-    ...photoSets.nyriza,
-    ...photoSets.eve,
+  // One representative photo per catalog — shuffled on each load
+  const homePhotos = [
+    photoSets.face[0],
+    photoSets.ethno[0],
+    photoSets.portraits[0],
+    photoSets.vlad[0],
+    photoSets.clara[0],
+    photoSets.adele[0],
+    photoSets.nyriza[0],
+    photoSets.eve[0],
   ];
 
   // Fisher-Yates shuffle
@@ -985,12 +974,11 @@
     return a;
   }
 
-  // Fill home grid with 7 random photos on every load
+  // Fill home grid — one photo per catalog, order shuffled each load
   function fillHomeGrid() {
     const grid = document.getElementById('home-grid');
     grid.innerHTML = '';
-    const picks = shuffle(allPhotos).slice(0, 7);
-    picks.forEach((src, i) => {
+    shuffle(homePhotos).forEach((src, i) => {
       const div = document.createElement('div');
       div.className = 'home-photo';
       const img = document.createElement('img');

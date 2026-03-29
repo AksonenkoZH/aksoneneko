@@ -168,14 +168,27 @@
     display: flex;
     align-items: flex-start;
     gap: var(--gap);
-    overflow-x: scroll;
-    overflow-y: hidden;
-    scrollbar-width: none;
-    cursor: default;
+    overflow: hidden;
     user-select: none;
     background: var(--bg-white);
+    /* infinite auto-scroll via CSS animation */
+    will-change: transform;
   }
-  .home-grid::-webkit-scrollbar { display: none; }
+  /* The inner track slides continuously */
+  .home-track {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--gap);
+    flex-shrink: 0;
+    animation: marquee var(--marquee-dur, 40s) linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home-track { animation: none; }
+  }
+  @keyframes marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
 
   .home-photo {
     flex: 0 0 auto;
@@ -611,7 +624,7 @@
         <div class="gallery-tile-label">Nyriza</div>
       </div>
       <div class="gallery-tile" onclick="showPhotos('eve', 'Eve')">
-        <img src="EVE_DSC_0261.jpg" alt="">
+        <img src="EVE_DSC_0362.jpg" alt="">
         <div class="gallery-tile-label">Eve</div>
       </div>
     </div>
@@ -974,24 +987,40 @@
     return a;
   }
 
-  // Fill home grid — one photo per catalog, order shuffled each load
+  // Fill home grid with infinite marquee — photos duplicated for seamless loop
   function fillHomeGrid() {
     const grid = document.getElementById('home-grid');
     grid.innerHTML = '';
-    shuffle(homePhotos).forEach((src, i) => {
-      const div = document.createElement('div');
-      div.className = 'home-photo';
-      const img = document.createElement('img');
-      img.src = src;
-      img.alt = '';
-      img.loading = i < 3 ? 'eager' : 'lazy';
-      div.appendChild(img);
-      grid.appendChild(div);
+
+    const shuffled = shuffle(homePhotos);
+
+    // Create two identical tracks — when first scrolls out, second seamlessly continues
+    [0, 1].forEach(clone => {
+      const track = document.createElement('div');
+      track.className = 'home-track';
+      shuffled.forEach((src, i) => {
+        const div = document.createElement('div');
+        div.className = 'home-photo';
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = '';
+        img.loading = (clone === 0 && i < 3) ? 'eager' : 'lazy';
+        div.appendChild(img);
+        track.appendChild(div);
+      });
+      grid.appendChild(track);
     });
+
+    // Set animation duration based on number of photos (px/s speed)
+    const speed = 80; // pixels per second
+    const photoW = grid.offsetHeight * 0.75 + 8; // approx 3:4 width + gap
+    const totalW = photoW * shuffled.length;
+    const dur = Math.round(totalW / speed);
+    grid.style.setProperty('--marquee-dur', dur + 's');
   }
 
   fillHomeGrid();
-  addDragScroll(document.getElementById('home-grid'));
+  // No drag scroll on home — auto-scroll only
 
   // ── Lightbox ──────────────────────────────────────────
 

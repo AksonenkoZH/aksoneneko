@@ -199,21 +199,32 @@
   ══════════════════════════════════════════════ */
   #page-gallery { background: var(--bg-white); }
 
-  .gallery-grid {
+  /* Scrollable gallery grid — 3 cols, tiles auto-stack vertically */
+  .gallery-scroll {
     position: absolute;
     top: var(--nav-h);
     left: 0; right: 0;
     bottom: var(--footer-h);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    background: var(--bg-white);
+  }
+  .gallery-scroll::-webkit-scrollbar { display: none; }
+
+  .gallery-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--gap);
     padding: var(--gap);
-    background: var(--bg-white);
+    /* each tile: fixed aspect ratio so all rows are equal height */
   }
+
   .gallery-tile {
     position: relative;
     overflow: hidden;
     cursor: pointer;
+    aspect-ratio: 3 / 4;
   }
   .gallery-tile img {
     width: 100%; height: 100%;
@@ -228,7 +239,7 @@
     bottom: 24px; left: 20px; right: 20px;
     color: var(--text-light);
     font-family: var(--font-display);
-    font-size: clamp(16px, 1.8vw, 26px);
+    font-size: clamp(13px, 1.4vw, 22px);
     font-weight: 400;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -428,10 +439,8 @@
 
     .gallery-grid {
       grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: 1fr 1fr;
     }
-    .gallery-tile:nth-child(3) { grid-column: 1 / -1; }
-    .gallery-tile-label { font-size: 13px; bottom: 14px; left: 12px; }
+    .gallery-tile-label { font-size: 12px; bottom: 12px; left: 12px; }
 
     /* Photo view on mobile: stack vertically */
     .photos-main { flex-direction: column; }
@@ -563,7 +572,7 @@
     <div class="footer-social">
       <a href="https://www.instagram.com/zhmen_aks/" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
       <a href="https://t.me/zhmen_aks" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
-      <a href="mailto:008zenya@Gmail.com" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
+      <a href="/cdn-cgi/l/email-protection#516161692b343f283011163c30383d7f323e3c" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
     </div>
     <span class="footer-copy">© AKSONENEKO</span>
   </footer>
@@ -571,18 +580,20 @@
 
 <!-- ══ GALLERY ════════════════════════════════════════ -->
 <div id="page-gallery" class="page">
-  <div class="gallery-grid">
-    <div class="gallery-tile" onclick="showPhotos('face', 'The Face Exhibit')">
-      <img src="DSC_0266.jpg" alt="">
-      <div class="gallery-tile-label">The Face Exhibit</div>
-    </div>
-    <div class="gallery-tile" onclick="showPhotos('ethno', 'A Selection of Ethno Culture Photos')">
-      <img src="DSC_0350.jpg" alt="">
-      <div class="gallery-tile-label">A Selection of Ethno Culture Photos</div>
-    </div>
-    <div class="gallery-tile" onclick="showPhotos('portraits', 'Portraits')">
-      <img src="DSC_0027.jpg" alt="">
-      <div class="gallery-tile-label">Portraits</div>
+  <div class="gallery-scroll">
+    <div class="gallery-grid" id="gallery-grid">
+      <div class="gallery-tile" onclick="showPhotos('face', 'The Face Exhibit')">
+        <img src="DSC_0266.jpg" alt="">
+        <div class="gallery-tile-label">The Face Exhibit</div>
+      </div>
+      <div class="gallery-tile" onclick="showPhotos('ethno', 'A Selection of Ethno Culture Photos')">
+        <img src="DSC_0350.jpg" alt="">
+        <div class="gallery-tile-label">A Selection of Ethno Culture Photos</div>
+      </div>
+      <div class="gallery-tile" onclick="showPhotos('portraits', 'Portraits')">
+        <img src="DSC_0027.jpg" alt="">
+        <div class="gallery-tile-label">Portraits</div>
+      </div>
     </div>
   </div>
   <footer class="site-footer">
@@ -590,7 +601,7 @@
     <div class="footer-social">
       <a href="https://www.instagram.com/zhmen_aks/" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
       <a href="https://t.me/zhmen_aks" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
-      <a href="mailto:008zenya@Gmail.com" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
+      <a href="/cdn-cgi/l/email-protection#fbcbcbc3819e95829abbbc969a9297d5989496" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
     </div>
     <span class="footer-copy">© AKSONENEKO</span>
   </footer>
@@ -616,7 +627,7 @@
         <div class="info-social">
           <a href="https://www.instagram.com/zhmen_aks/" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
           <a href="https://t.me/zhmen_aks" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
-          <a href="mailto:008zenya@Gmail.com" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
+          <a href="/cdn-cgi/l/email-protection#7242424a08171c0b1332351f131b1e5c111d1f" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
         </div>
         <div class="info-back">
           <button class="back-btn-light" onclick="showPage('gallery')">
@@ -633,7 +644,7 @@
     <div class="footer-social">
       <a href="https://www.instagram.com/zhmen_aks/" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
       <a href="https://t.me/zhmen_aks" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
-      <a href="mailto:008zenya@Gmail.com" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
+      <a href="/cdn-cgi/l/email-protection#4373737b39262d3a2203042e222a2f6d202c2e" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
     </div>
     <span class="footer-copy">© AKSONENEKO</span>
   </footer>
@@ -659,7 +670,7 @@
         <div class="contact-social">
           <a href="https://www.instagram.com/zhmen_aks/" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
           <a href="https://t.me/zhmen_aks" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
-          <a href="mailto:008zenya@Gmail.com" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
+          <a href="/cdn-cgi/l/email-protection#1222222a68777c6b7352557f737b7e3c717d7f" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
         </div>
       </div>
     </div>
@@ -669,7 +680,7 @@
     <div class="footer-social">
       <a href="https://www.instagram.com/zhmen_aks/" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
       <a href="https://t.me/zhmen_aks" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
-      <a href="mailto:008zenya@Gmail.com" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
+      <a href="/cdn-cgi/l/email-protection#5d6d6d65273833243c1d1a303c3431733e3230" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
     </div>
     <span class="footer-copy">© AKSONENEKO</span>
   </footer>
@@ -697,7 +708,7 @@
   <div class="lb-counter" id="lb-counter"></div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   const photoSets = {
     face: [
       'DSC_0121.jpg',
@@ -950,9 +961,7 @@
   });
 
   // Touch swipe inside lightbox
-  let lbTouchX = 0;
-  lightbox.addEventListener('touchstart', e => { lbTouchX = e.touches[0].clientX; }, { passive: true });
-  lightbox.addEventListener('touchend', e => {
+    lightbox.addEventListener('touchend', e => {
     const dx = lbTouchX - e.changedTouches[0].clientX;
     if (Math.abs(dx) > 40) dx > 0 ? lbShow(lbIndex + 1) : lbShow(lbIndex - 1);
   }, { passive: true });

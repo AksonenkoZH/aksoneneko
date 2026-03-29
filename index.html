@@ -557,14 +557,7 @@
 
 <!-- ══ HOME ══════════════════════════════════════════ -->
 <div id="page-home" class="page active">
-  <div class="home-grid" id="home-grid">
-    <div class="home-photo"><img src="DSC_0121.jpg" alt="" loading="eager"></div>
-    <div class="home-photo"><img src="DSC_0266.jpg" alt="" loading="eager"></div>
-    <div class="home-photo"><img src="DSC_0350.jpg" alt="" loading="eager"></div>
-    <div class="home-photo"><img src="DSC_0027.jpg" alt="" loading="eager"></div>
-    <div class="home-photo"><img src="DSC_0300.jpg" alt=""></div>
-    <div class="home-photo"><img src="DSC_0578.jpg" alt=""></div>
-  </div>
+  <div class="home-grid" id="home-grid"></div>
   <footer class="site-footer">
     <div class="footer-contact"><span>+380932653781</span><span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c8f8f8f0b2ada6b1a9888fa5a9a1a4e6aba7a5">[email&#160;protected]</a></span></div>
     <div class="footer-social">
@@ -871,6 +864,42 @@
   }
 
   // ── Init ──────────────────────────────────────────────
+
+  // All photos from all catalogs — pool for home page
+  const allPhotos = [
+    ...photoSets.face,
+    ...photoSets.ethno,
+    ...photoSets.portraits,
+  ];
+
+  // Fisher-Yates shuffle
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // Fill home grid with 7 random photos on every load
+  function fillHomeGrid() {
+    const grid = document.getElementById('home-grid');
+    grid.innerHTML = '';
+    const picks = shuffle(allPhotos).slice(0, 7);
+    picks.forEach((src, i) => {
+      const div = document.createElement('div');
+      div.className = 'home-photo';
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = '';
+      img.loading = i < 3 ? 'eager' : 'lazy';
+      div.appendChild(img);
+      grid.appendChild(div);
+    });
+  }
+
+  fillHomeGrid();
   addDragScroll(document.getElementById('home-grid'));
 
   // ── Lightbox ──────────────────────────────────────────

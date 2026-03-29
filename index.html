@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AKSONENEKO</title>
+<title>AKSONENKO</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400&display=swap" rel="stylesheet">
 <style>
@@ -456,22 +456,34 @@
     }
     .gallery-tile-label { font-size: 12px; bottom: 12px; left: 12px; }
 
-    /* Photo view on mobile: stack vertically */
-    .photos-main { flex-direction: column; }
+    /* Photo view on mobile: horizontal photos + info below */
+    .photos-main {
+      flex-direction: row; /* keep horizontal — photos scroll left/right */
+    }
     .photos-strip-wrap {
-      flex: 0 0 50%;
-      width: 100%;
+      flex: 0 0 100vw;
+      width: 100vw;
+      height: 100%;
     }
     .photos-strip {
       overflow-x: scroll;
       overflow-y: hidden;
+      height: 100%;
+      align-items: flex-start;
     }
-    .photo-item { height: 100%; width: auto; aspect-ratio: 3 / 4; }
+    .photo-item {
+      height: 100%;
+      width: auto;
+      aspect-ratio: 3 / 4;
+    }
     .photos-info {
       flex: 0 0 100vw;
       width: 100vw;
-      padding: 24px 20px;
+      height: 100%;
+      padding: 32px 20px;
       overflow-y: auto;
+      justify-content: flex-start;
+      padding-top: 48px;
     }
     .photos-info-inner { width: 100%; }
 
@@ -571,7 +583,7 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     Back
   </button>
-  <span class="nav-logo" onclick="showPage('home')">AKSONENEKO</span>
+  <span class="nav-logo" onclick="showPage('home')">AKSONENKO</span>
   <div class="nav-links">
     <a id="nav-gallery" onclick="showPage('gallery')">Gallery</a>
     <a id="nav-contact" onclick="showPage('contact')">Contact</a>
@@ -588,7 +600,7 @@
       <a href="https://t.me/zhmen_aks" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
       <a href="/cdn-cgi/l/email-protection#516161692b343f283011163c30383d7f323e3c" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
     </div>
-    <span class="footer-copy">© AKSONENEKO</span>
+    <span class="footer-copy">© AKSONENKO</span>
   </footer>
 </div>
 
@@ -637,7 +649,7 @@
       <a href="https://t.me/zhmen_aks" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
       <a href="/cdn-cgi/l/email-protection#fbcbcbc3819e95829abbbc969a9297d5989496" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
     </div>
-    <span class="footer-copy">© AKSONENEKO</span>
+    <span class="footer-copy">© AKSONENKO</span>
   </footer>
 </div>
 
@@ -680,7 +692,7 @@
       <a href="https://t.me/zhmen_aks" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
       <a href="/cdn-cgi/l/email-protection#4373737b39262d3a2203042e222a2f6d202c2e" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
     </div>
-    <span class="footer-copy">© AKSONENEKO</span>
+    <span class="footer-copy">© AKSONENKO</span>
   </footer>
 </div>
 
@@ -695,7 +707,7 @@
         </button>
       </div>
       <div class="contact-body">
-        <p>AKSONENEKO — photography portfolio.</p>
+        <p>AKSONENKO — photography portfolio.</p>
         <p>Contact us via phone, email or social media.</p>
         <div class="contact-info">
           <div><strong>Contact:</strong>&nbsp; +380932653781</div>
@@ -716,7 +728,7 @@
       <a href="https://t.me/zhmen_aks" target="_blank" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg></a>
       <a href="/cdn-cgi/l/email-protection#5d6d6d65273833243c1d1a303c3431733e3230" class="social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
     </div>
-    <span class="footer-copy">© AKSONENEKO</span>
+    <span class="footer-copy">© AKSONENKO</span>
   </footer>
 </div>
 

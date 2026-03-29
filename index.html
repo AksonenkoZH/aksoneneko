@@ -167,27 +167,27 @@
     bottom: var(--footer-h);
     display: flex;
     align-items: flex-start;
-    gap: var(--gap);
+    gap: 0;
     overflow: hidden;
     user-select: none;
     background: var(--bg-white);
-    /* infinite auto-scroll via CSS animation */
     will-change: transform;
   }
-  /* The inner track slides continuously */
+  /* Each track is one full set of photos — two tracks create seamless loop */
   .home-track {
     display: flex;
     align-items: flex-start;
     gap: var(--gap);
     flex-shrink: 0;
-    animation: marquee var(--marquee-dur, 40s) linear infinite;
+    padding-right: var(--gap); /* close gap between track end and next track start */
+    animation: marquee var(--marquee-dur, 30s) linear infinite;
   }
   @media (prefers-reduced-motion: reduce) {
     .home-track { animation: none; }
   }
   @keyframes marquee {
     0%   { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+    100% { transform: translateX(-100%); }
   }
 
   .home-photo {
@@ -624,7 +624,7 @@
         <div class="gallery-tile-label">Nyriza</div>
       </div>
       <div class="gallery-tile" onclick="showPhotos('eve', 'Eve')">
-        <img src="EVE_DSC_0362.jpg" alt="">
+        <img src="EVE_DSC_0795.jpg" alt="">
         <div class="gallery-tile-label">Eve</div>
       </div>
     </div>
@@ -1011,12 +1011,16 @@
       grid.appendChild(track);
     });
 
-    // Set animation duration based on number of photos (px/s speed)
-    const speed = 80; // pixels per second
-    const photoW = grid.offsetHeight * 0.75 + 8; // approx 3:4 width + gap
-    const totalW = photoW * shuffled.length;
-    const dur = Math.round(totalW / speed);
-    grid.style.setProperty('--marquee-dur', dur + 's');
+    // Calculate duration: measure actual track width after render
+    requestAnimationFrame(() => {
+      const track = grid.querySelector('.home-track');
+      if (!track) return;
+      const trackW = track.offsetWidth;
+      const isMobile = window.innerWidth <= 700;
+      const speed = isMobile ? 120 : 160; // px/sec — faster on desktop
+      const dur = Math.max(10, Math.round(trackW / speed));
+      grid.style.setProperty('--marquee-dur', dur + 's');
+    });
   }
 
   fillHomeGrid();

@@ -166,7 +166,7 @@
     top: 0; left: 0; right: 0;
     bottom: var(--footer-h);
     display: flex;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 0;
     overflow: hidden;
     user-select: none;
@@ -176,10 +176,11 @@
   /* Each track is one full set of photos — two tracks create seamless loop */
   .home-track {
     display: flex;
-    align-items: flex-start;
+    align-items: stretch;
     gap: var(--gap);
     flex-shrink: 0;
-    padding-right: var(--gap); /* close gap between track end and next track start */
+    height: 100%;
+    padding-right: var(--gap);
     animation: marquee var(--marquee-dur, 30s) linear infinite;
   }
   @media (prefers-reduced-motion: reduce) {
@@ -192,7 +193,6 @@
 
   .home-photo {
     flex: 0 0 auto;
-    /* fix 1: start from very top, full height of container */
     height: 100%;
     max-height: 828px;
     aspect-ratio: 3 / 4;
@@ -448,7 +448,8 @@
     nav { padding: 0 20px; }
     .nav-logo { font-size: 16px; }
 
-    .home-photo { height: 100%; aspect-ratio: 3 / 4; }
+    .home-photo { height: 100%; max-height: none; aspect-ratio: 3 / 4; }
+    .home-track { height: 100%; }
 
     .gallery-grid {
       grid-template-columns: repeat(2, 1fr);
@@ -1017,7 +1018,7 @@
       if (!track) return;
       const trackW = track.offsetWidth;
       const isMobile = window.innerWidth <= 700;
-      const speed = isMobile ? 120 : 160; // px/sec — faster on desktop
+      const speed = isMobile ? 100 : 120; // px/sec
       const dur = Math.max(10, Math.round(trackW / speed));
       grid.style.setProperty('--marquee-dur', dur + 's');
     });
